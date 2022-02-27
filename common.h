@@ -2,8 +2,8 @@
 #include <iostream>
 
 std::string generateDateFormat(esphome::time::ESPTime time, std::string nameday) {
-  std::string months[12] = {"Jan", "Feb", "Már", "Ápr", "Máj", "Jún", "Júl", "Aug", "Sze", "Okt", "Nov", "Dec"};
-  std::string weekdays[7] = {"Vasárnap", "Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat"};
+  std::string months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+  std::string weekdays[7] = {"Sunday", "Monday", "Tursday", "Wednesday", "Thursday", "Friday", "Saturday"};
   std::string dateFormat = months[atoi(time.strftime("%m").c_str()) - 1] + std::string(" %d, ") + weekdays[atoi(time.strftime("%w").c_str())] + " | " + nameday;
   return dateFormat;
 }
@@ -76,10 +76,4 @@ std::string moonToIcon(std::string moonPhase)
   if (moonPhase == "last_quarter") return ICON_moon_last_quarter;
   if (moonPhase == "waning_crescent") return ICON_moon_waning_crescent;
   return "";
-}
-
-std::string locationToHungarian(std::string location) {
-  if (location == "home") return "Otthon";
-  if (location == "not_home") return "Távol";
-  return location;
 }

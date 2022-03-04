@@ -4,31 +4,21 @@
 
 This is my hobby project to create an information-dense kitchen countertop dashboard for my Home Assistant based smart home.
 
-My work was inspired by geekuillaume and Plawasan.
+My work was inspired by geekuillaume, Plawasan, and Tolnai.
 
-Disclaimer: this is really not a cleaned up version yet. 🙂
+Disclaimer: I am a hack. 🙂
 
 ## Device
 
-I used a Lilygo T5 4,7" e-ink display + ESP32 ordered from Aliexpress, PH 2.0 9102 Chip version. The device came in a nice package with a USB cable included. Once installing the proper driver it was ready to use.
+I used a LILYGO T5-4.7 inch E-Paper ESP32 V3 Version 16MB Flash 8MB PSRAM WiFi/Bluetooth for arduino 18650 Battery Holder Version ordered from Amazon.
 
 ## Getting started
 
 Steps I needed to get this project up and running on Windows:
 
-- install latest python
-- install esp-idf from [https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/windows-setup.html]
-  - (this was needed for Windows to recognize my Lilygo T5 properly)
 - install ESPHome addon and integration to Home Assistant
 - follow the [ESPHome CLI guide](https://esphome.io/guides/getting_started_command_line.html)
 - add passwords to `secrets.yaml` (not pushed to this repo)
-
-```bash
-pip3 install esphome
-pip3 install pillow
-esphome wizard dashboard.yaml
-esphome run dashboard.yaml
-```
 
 ## Custom solutions behind
 
@@ -40,11 +30,10 @@ Data sources used behind:
 
 - HA date and time
 - `sun` and `moon` HA sensors
-- google calendar to get today's "nameday"
-- spotify
-- temperature+humidity sensors
-- custom weather integration (scraping a local provider in HA, that's why everything seems to be a separate sensor)
-- mobile apps for tracking zones
+- google calendar to get today's Sunrise and Sunset
+- 433 MHz temperature+humidity sensors, Accuweather Atlas weather station, and another ESP32 monitoring garage doors
+- Motion messages from Home Security Camera using MQTT (Blue Iris)
+- Accuweather integration for forecasts
 
 ## Other resources
 

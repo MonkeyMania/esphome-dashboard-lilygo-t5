@@ -8,14 +8,10 @@ std::string generateDateFormat(esphome::time::ESPTime time, std::string nameday)
   return dateFormat;
 }
 
-#define ICON_stop "\U000F04DB"
-#define ICON_play "\U000F040A"
-#define ICON_pause "\U000F03E4"
-
-std::string playbackStatusToIcon(bool playing, bool paused) {
-  if (playing) return ICON_play;
-  else if (paused) return ICON_pause;
-  else return ICON_stop;
+std::string dowToShortName(int dow) {
+  std::string weekdays[12] = {"dummy", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed"};
+  std::string dowName = weekdays[dow];
+  return dowName;
 }
 
 #define ICON_w_clear_night "\U000F0594"

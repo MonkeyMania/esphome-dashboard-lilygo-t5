@@ -31,9 +31,27 @@ Data sources used behind:
 - HA date and time
 - `sun` and `moon` HA sensors
 - google calendar to get today's Sunrise and Sunset
-- 433 MHz temperature+humidity sensors, Accuweather Atlas weather station, and another ESP32 monitoring garage doors
+- 433 MHz temperature+humidity sensors, Accuweather Atlas weather station
+- Another ESP32 monitoring garage door positions
 - Motion messages from Home Security Camera using MQTT (Blue Iris)
+- Fireplace monitoring (icon for Living Room temperature) monitoring Shelly state
+- Freezer power monitored by Shelly presence using Unifi integration. Shelly for porch lights on same GFCI circuit as freezer (happy coincidence).
 - Accuweather integration for forecasts
+  - Required creation of 3 forecast condition entities to pass to ESPHome: 
+    "{{ state_attr('weather.home', 'forecast')[0/1/2].condition }}"
+  - Entitities of Min/Max "Real Feel" temperatures for 0/1/2 days out made by integration
+
+## To Do
+
+Things I still want to clean up:
+
+- Status icon and text positioning (alignment and orientation is boggling my mind)
+- Possible clean up Sunrise/Sunset information by trimming to just times and show icons
+  - Need value template like: 
+    {{ state_attr('calendar.sunrise_and_sunset_for_bristol', 'message').split(",")[0].replace('Sunrise: ','') }}
+- Squeeze in rain probability to forecast while keeping hourly/day/week rain totals?
+  - Would require more custom templates like: 
+    "{{ state_attr('weather.home', 'forecast')[0/1/2].precipitation_probability }}"
 
 ## Other resources
 

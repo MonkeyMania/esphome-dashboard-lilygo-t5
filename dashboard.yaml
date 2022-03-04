@@ -1,12 +1,12 @@
 substitutions:
   esp_name: ESP Dashboard
   esp_hostname: esp-dashboard 
-  ip_address: 192.168.0.234
-  ip_gw: 192.168.0.1
+  ip_address: 192.168.1.189
+  ip_gw: 192.168.1.1
   ip_netmask: 255.255.255.0
 
 esphome:
-  name: dashboard
+  name: lilygo-display
   includes:
     - common.h
 
@@ -18,25 +18,19 @@ esp32:
 logger:
 
 api:
-  password: ""
+  password: !secret api_code
 
 ota:
   password: ""
 
 wifi:
-  ssid: "Cruiser"
+  ssid: !secret wifi_ssid
   password: !secret wifi_password
-  manual_ip:
-    static_ip: ${ip_address}
-    gateway: ${ip_gw}
-    subnet: ${ip_netmask}
-  ap:
-    ssid: "${esp_name} Fallback Hotspot"
-    password: !secret wifi_password
 
-web_server:
-  port: 80
-  include_internal: true 
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Lilygo-Display Fallback Hotspot"
+    password: ""
 
 time:
   - platform: homeassistant
@@ -59,77 +53,119 @@ script:
 sensor:
   # weather
   - platform: homeassistant
-    entity_id: sensor.idokep_temperature
-    id: temperature
+    entity_id: sensor.outdoor_temp
+    id: temp_outside
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.idokep_day1_min
-    id: day1_min
+    entity_id: sensor.outdoor_humidity
+    id: humid_outside
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.idokep_day1_max
-    id: day1_max
+    entity_id: sensor.home_realfeel_temperature_min_0d
+    id: fc_0_low
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.idokep_day1_prec
-    id: day1_prec
+    entity_id: sensor.home_realfeel_temperature_max_0d
+    id: fc_0_high
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.idokep_day2_min
-    id: day2_min
+    entity_id: sensor.home_realfeel_temperature_min_1d
+    id: fc_1_low
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.idokep_day2_max
-    id: day2_max
+    entity_id: sensor.home_realfeel_temperature_max_1d
+    id: fc_1_high
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.idokep_day2_prec
-    id: day2_prec
+    entity_id: sensor.home_realfeel_temperature_min_2d
+    id: fc_2_low
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.idokep_day3_min
-    id: day3_min
+    entity_id: sensor.home_realfeel_temperature_max_2d
+    id: fc_2_high
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.idokep_day3_max
-    id: day3_max
+    entity_id: sensor.wind_speed_average
+    id: wind_avg
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.idokep_day3_prec
-    id: day3_prec
+    entity_id: sensor.wind_gusts
+    id: wind_max
     internal: true
+
+  - platform: homeassistant
+    entity_id: sensor.daily_lightning
+    id: lightning
+    internal: true
+
+  - platform: homeassistant
+    entity_id: sensor.uv_average
+    id: uv
+    internal: true
+
+  - platform: homeassistant
+    entity_id: sensor.rain_1hr
+    id: rain_hour
+    internal: true
+
+  - platform: homeassistant
+    entity_id: sensor.daily_rain
+    id: rain_day
+    internal: true
+
+  - platform: homeassistant
+    entity_id: sensor.weekly_rain
+    id: rain_week
+    internal: true
+
   # temperature/humidity sensors
   - platform: homeassistant
-    entity_id: sensor.bedroom_sensor_temperature
-    id: temp_halo
+    entity_id: sensor.bedroom_temp
+    id: temp_bedroom
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.bedroom_sensor_humidity
-    id: humidity_halo
+    entity_id: sensor.bedroom_rh
+    id: humid_bedroom
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.living_room_sensor_temperature
-    id: temp_nappali
+    entity_id: sensor.living_room_temp
+    id: temp_livroom
     internal: true
+
+#  - platform: homeassistant
+#    entity_id: sensor.living_room_sensor_humidity
+#    id: humidity_nappali
+#    internal: true
+
   - platform: homeassistant
-    entity_id: sensor.living_room_sensor_humidity
-    id: humidity_nappali
+    entity_id: sensor.large_crawl_space_temp
+    id: temp_lcs
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.matthew_sensor_temperature
-    id: temp_mate
+    entity_id: sensor.large_crawl_space_rh
+    id: humid_lcs
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.matthew_sensor_humidity
-    id: humidity_mate
+    entity_id: sensor.small_crawl_space_temp
+    id: temp_scs
     internal: true
+
   - platform: homeassistant
-    entity_id: sensor.lucy_sensor_temperature
-    id: temp_luca
-    internal: true
-  - platform: homeassistant
-    entity_id: sensor.lucy_sensor_humidity
-    id: humidity_luca
+    entity_id: sensor.small_crawl_space_rh
+    id: humid_scs
     internal: true
 
 binary_sensor:
@@ -141,122 +177,122 @@ binary_sensor:
     on_press:
       then:
         - component.update: t5_display
+
   - platform: homeassistant
-    entity_id: binary_sensor.idokep_temp_falling
-    id: temp_falling
-    internal: true
-  - platform: homeassistant
-    entity_id: binary_sensor.idokep_temp_rising
-    id: temp_rising
+    entity_id: switch.fireplace
+    id: fireplace_on
     internal: true
 
+  - platform: homeassistant
+    entity_id: binary_sensor.carrie_s_door
+    id: garage_carrie
+    internal: true
+
+  - platform: homeassistant
+    entity_id: binary_sensor.tim_s_door
+    id: garage_tim
+    internal: true
+
+  - platform: homeassistant
+    entity_id: device_tracker.unifi_8c_aa_b5_c5_18_24_default
+    id: freezer
+    internal: true
+
+  - platform: homeassistant
+    entity_id: binary_sensor.front_porch_motion
+    id: fp_motion
+    internal: true
+
+  - platform: homeassistant
+    entity_id: binary_sensor.driveway_motion
+    id: dw_motion
+    internal: true
+
+#  - platform: homeassistant
+#    entity_id: binary_sensor.idokep_temp_falling
+#    id: temp_falling
+#    internal: true
+
+#  - platform: homeassistant
+#    entity_id: binary_sensor.idokep_temp_rising
+#    id: temp_rising
+#    internal: true
+
 text_sensor:
+  # Forecast
+  - platform: homeassistant
+    entity_id: sensor.forecast_0_weather
+    id: fc_0_weather
+    internal: true
+
+  - platform: homeassistant
+    entity_id: sensor.forecast_1_weather
+    id: fc_1_weather
+    internal: true
+
+  - platform: homeassistant
+    entity_id: sensor.forecast_2_weather
+    id: fc_2_weather
+    internal: true
+
   # sun/moon
   - platform: homeassistant
     entity_id: sun.sun
     id: sun
     internal: true
+    
   - platform: homeassistant
     entity_id: sensor.moon
     id: moon
     internal: true
+    
+  - platform: homeassistant
+    entity_id: calendar.sunrise_and_sunset_for_bristol
+    attribute: message
+    id: sunrise_sunset
+    internal: true
+    
   # weather
   - platform: homeassistant
-    entity_id: sensor.idokep_condition
-    id: condition
+    entity_id: weather.home
+    id: cur_weather
     internal: true
     on_value: # Actions to perform once data for the last sensor has been received
       then:
         - script.execute: all_data_received
-  - platform: homeassistant
-    entity_id: sensor.idokep_day1_dow
-    id: day1_dow
-    internal: true
-  - platform: homeassistant
-    entity_id: sensor.idokep_day1_condition
-    id: day1_condition
-    internal: true
-  - platform: homeassistant
-    entity_id: sensor.idokep_day2_dow
-    id: day2_dow
-    internal: true
-  - platform: homeassistant
-    entity_id: sensor.idokep_day2_condition
-    id: day2_condition
-    internal: true
-  - platform: homeassistant
-    entity_id: sensor.idokep_day3_dow
-    id: day3_dow
-    internal: true
-  - platform: homeassistant
-    entity_id: sensor.idokep_day3_condition
-    id: day3_condition
-    internal: true
-  # spotify
-  - platform: homeassistant
-    entity_id: media_player.spotify_totesz
-    id: spotify_playing_status
-    internal: true
-  - platform: homeassistant
-    entity_id: media_player.spotify_totesz
-    attribute: media_title
-    id: spotify_playing_title
-    internal: true
-  - platform: homeassistant
-    entity_id: media_player.spotify_totesz
-    attribute: media_artist
-    id: spotify_playing_artist
-    internal: true
-    on_value: # Actions to perform once data for the last sensor has been received
-      then:
-        - script.execute: all_data_received  
-  # calendar
-  - platform: homeassistant
-    entity_id: calendar.nevnapok
-    attribute: message
-    id: nevnap
-    internal: true
-  # zone tracking
-  - platform: homeassistant
-    entity_id: device_tracker.gabor_fon
-    id: gabor_location
-    internal: true
-  - platform: homeassistant
-    entity_id: device_tracker.verus_fon_3
-    id: verus_location
-    internal: true
 
 font:
   - file: "fonts/OpenSans-Medium.ttf"
     id: font_small
     size: 28    
     glyphs: |-
-      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'/&|ÁÉÍÓÖŐÚÜŰáéíóöőúüű
+      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'éèàòùç/&ôœìïöñ
   - file: "fonts/OpenSans-Medium.ttf"
     id: font_medium
     size: 38
     glyphs: |-
-      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'/&|ÁÉÍÓÖŐÚÜŰáéíóöőúüű
+      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'éèàòùç/&ôœìïöñ
   - file: "fonts/OpenSans-Bold.ttf"
     id: font_medium_bold
     size: 38
     glyphs: |-
-      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'/&|ÁÉÍÓÖŐÚÜŰáéíóöőúüű
+      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'éèàòùç/&ôœìïöñ
   - file: "fonts/OpenSans-Medium.ttf"
     id: font_big
     size: 48
     glyphs: |-
-      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'/&|ÁÉÍÓÖŐÚÜŰáéíóöőúüű
+      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'éèàòùç/&ôœìïöñ
   - file: "fonts/OpenSans-Medium.ttf"
     id: font_large
     size: 56
     glyphs: |-
-      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'/&|ÁÉÍÓÖŐÚÜŰáéíóöőúüű
+      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'éèàòùç/&ôœìïöñ
   - file: "fonts/OpenSans-Bold.ttf"
     id: font_xlarge_bold
     size: 72
     glyphs: |-
-      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'/&|ÁÉÍÓÖŐÚÜŰáéíóöőúüű
+      !"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz'éèàòùç/&ôœìïöñ
+
   # material UI icons - from https://pictogrammers.github.io/@mdi/font/5.3.45/
   - file: 'fonts/materialdesignicons-webfont.ttf'
     id: font_icons
@@ -278,11 +314,15 @@ font:
       - "\U000F059D" # windy
       - "\U000F059E" # windy-variant
       - "\U000F0F38" # exCentereptional
+      # Garage and others Status
+      - "\U000F06D9" # garage closed
+      - "\U000F06DA" # garage opened
+      
   - file: 'fonts/materialdesignicons-webfont.ttf'
     id: font_icons_small
     size: 56
     glyphs:
-      # weather
+      # Small Weather Icons
       - "\U000F0594" # clear-night
       - "\U000F0590" # cloudy
       - "\U000F0591" # fog
@@ -297,8 +337,23 @@ font:
       - "\U000F067F" # snowy-rainy
       - "\U000F0599" # sunny
       - "\U000F059D" # windy
-      - "\U000F059E" # windy-variant
-      - "\U000F0F38" # exceptional
+      - "\U000F059E" # windy-variant/wind avg
+      - "\U000F0F38" # exCentereptional
+      # Misc icons
+      - "\U000F10C2" # Temperature High
+      - "\U000F10C3" # Temperature Low
+      - "\U000F054B" # umbrella
+      - "\U000F02E3" # Bed
+      - "\U000F0E2E" # Fireplace On
+      - "\U000F0E2F" # Fireplace Off
+      - "\U000F04B9" # sofa
+      - "\U000F023F" # wind max
+      - "\U000F140B" # lightning
+      - "\U000F028F" # fridge
+      - "\U000F11B1" # fridge problem
+      - "\U000F1435" # no motion
+      - "\U000F0D91" # motion detected
+      - "\U000F17FF" # UV Sun
       # moon phases
       - "\U000F0F61" # moon-first-quarter
       - "\U000F0F62" # moon-full
@@ -308,166 +363,193 @@ font:
       - "\U000F0F66" # moon-waning-gibbous
       - "\U000F0F67" # moon-waxing-crescent
       - "\U000F0F68" # moon-waxing-gibbous
-      # other icons
-      - "\U000F10C2" # Temperature High
-      - "\U000F10C3" # Temperature Low
-      - "\U000F054B" # umbrella
-      - "\U000F02E3" # Bed
-      - "\U000F064D" # human-male
-      - "\U000F0649" # human-female
-      - "\U000F04B9" # sofa
-      - "\U000F04DB" # stop
-      - "\U000F040A" # play
-      - "\U000F03E4" # pause
-      - "\U000F0643" # man
-      - "\U000F1078" # woman
+
   - file: 'fonts/materialdesignicons-webfont.ttf'
     id: font_icons_tiny
     size: 32
     glyphs:
       - "\U000F005E" # arrow-up-thick
       - "\U000F0046" # arrow-down-thick
-
+      
 display:
   - platform: lilygo_t5_47_display
     id: t5_display
     rotation: 180
     update_interval: 10s
     lambda: |-
-      // icon constants
       #define ICON_temp_high        "\U000F10C2"
       #define ICON_temp_low         "\U000F10C3"
       #define ICON_umbrella         "\U000F054B"
       #define ICON_bed              "\U000F02E3"
-      #define ICON_human_male       "\U000F064D"
-      #define ICON_human_female     "\U000F0649"
-      #define ICON_sofa             "\U000F04B9"
-      #define ICON_man              "\U000F0643"
-      #define ICON_woman            "\U000F1078"
+      #define ICON_fireplace_on     "\U000F0E2E"
+      #define ICON_fireplace_off    "\U000F0E2F"
+      #define ICON_wind_avg         "\U000F059E"
+      #define ICON_wind_max         "\U000F023F"
       #define ICON_up               "\U000F005E"
       #define ICON_down             "\U000F0046"
-      // positioning constants
+      #define ICON_garage_closed    "\U000F06D9"
+      #define ICON_garage_open      "\U000F06DA"
+      #define ICON_lightning        "\U000F140B"
+      #define ICON_fridge           "\U000F028F"
+      #define ICON_fridge_problem   "\U000F11B1"
+      #define ICON_no_motion        "\U000F1435"
+      #define ICON_motion_detected  "\U000F0D91"
+      #define ICON_uv               "\U000F17FF"
       #define xRes 960
       #define yRes 540
-      #define xCenter (xRes/2 + 40) // X position center
+      #define xCenter (xRes/2 + 40)
       #define pad 10
-      #define celsiusSuperscript 12
+      #define tempSuperscript 12
       #define rowHeight 75
       #define temperatureCol 195
       #define humidityCol 300
       #define weatherCol 120
       #define weatherTempCorr 15
-
-      // helper variables
       int y = 0;
-
-      // === Date ===
-
-      // time
+      
+      // date time Stuff
       auto time = id(ntp).now();
       auto dayTime = id(sun).state == "above_horizon";
-      it.strftime(pad, 0, id(font_xlarge_bold), TextAlign::TOP_LEFT, "%H:%M", time);
+      it.strftime(180, 0, id(font_xlarge_bold), TextAlign::TOP_RIGHT, "%l:%M", time);
+      it.strftime(180, pad, id(font_medium_bold), TextAlign::TOP_LEFT, "%p", time);
       // date + nameday
-      std::string dateFormat = generateDateFormat(time, id(nevnap).state);
-      it.strftime(xRes - pad - 55, pad, id(font_medium_bold), TextAlign::TOP_RIGHT, dateFormat.c_str(), time);
+      //std::string dateFormat = generateDateFormat(time, id(ntp).now);
+      it.printf(xRes - pad - 45, pad, id(font_medium_bold), TextAlign::TOP_RIGHT, "%.40s", id(sunrise_sunset).state.c_str());
       // moon phase
       auto moonIcon = moonToIcon(id(moon).state);
-      it.printf(xRes - pad/2, pad, id(font_icons_small), TextAlign::TOP_RIGHT, moonIcon.c_str()); 
+      it.printf(xRes - pad/2, pad, id(font_icons_small), TextAlign::TOP_RIGHT, moonIcon.c_str());
+      
+      // === LEFT - Status Icons ===
+      y = 135;
+      if (id(garage_carrie).state) {
+        it.printf(pad, y, id(font_icons), TextAlign::CENTER_LEFT, ICON_garage_open); 
+       } else {
+        it.printf(pad, y, id(font_icons), TextAlign::CENTER_LEFT, ICON_garage_closed);
+       }
+       it.printf(pad + 65, y + 70, id(font_small), TextAlign::BASELINE_CENTER, "Carrie");
 
-      // === LEFT - Spotify ===
+      if (id(garage_tim).state) {
+        it.printf(pad + 120, y, id(font_icons), TextAlign::CENTER_LEFT, ICON_garage_open); 
+       } else {
+        it.printf(pad + 120, y, id(font_icons), TextAlign::CENTER_LEFT, ICON_garage_closed);
+       }
+       it.printf(pad + 65 + 120, y + 70, id(font_small), TextAlign::BASELINE_CENTER, "Tim");
 
-      y = 150;
-      auto playing = id(spotify_playing_status).state == "playing";
-      auto paused = id(spotify_playing_status).state == "paused";
-      auto spotifyIcon = playbackStatusToIcon(playing, paused);
-      it.printf(pad, y, id(font_icons_small), TextAlign::BASELINE_LEFT, spotifyIcon.c_str()); 
-      if (playing || paused) {
-        it.printf(77, y, id(font_big), TextAlign::BASELINE_LEFT, "%.25s", id(spotify_playing_title).state.c_str());
-        it.printf(77, y + 46, id(font_medium), TextAlign::BASELINE_LEFT, "%.40s", id(spotify_playing_artist).state.c_str());
-      } else {
-        it.printf(77, y - 5, id(font_big), TextAlign::BASELINE_LEFT, "-");
-      }
+      if (id(fp_motion).state) {
+        it.printf(pad + 120 * 2, y, id(font_icons_small), TextAlign::CENTER_LEFT, ICON_motion_detected); 
+       } else {
+        it.printf(pad + 120 * 2, y, id(font_icons_small), TextAlign::CENTER_LEFT, ICON_no_motion);
+       }
+       it.printf(pad + 65 + 120 * 2, y + 70, id(font_small), TextAlign::BASELINE_CENTER, "FP");
+
+      if (id(dw_motion).state) {
+        it.printf(pad + 120 * 3, y, id(font_icons_small), TextAlign::CENTER_LEFT, ICON_motion_detected); 
+       } else {
+        it.printf(pad + 120 * 3, y, id(font_icons_small), TextAlign::CENTER_LEFT, ICON_no_motion);
+       }
+       it.printf(pad + 65 + 120 * 3, y + 70, id(font_small), TextAlign::BASELINE_CENTER, "DW");
+
+      if (id(freezer).state) {
+        it.printf(pad + 120 * 4, y, id(font_icons_small), TextAlign::CENTER_LEFT, ICON_fridge_problem); 
+       } else {
+        it.printf(pad + 120 * 4, y, id(font_icons_small), TextAlign::CENTER_LEFT, ICON_fridge);
+       }
+       it.printf(pad + 65 + 120 * 4, y + 70, id(font_small), TextAlign::BASELINE_CENTER, "Freezer");
 
       // === RIGHT - Weather ===
 
       y = 135;
       // current temperature
-      if (!isnan(id(temperature).state)) {
-        it.printf(xRes - 210, y, id(font_xlarge_bold), TextAlign::CENTER_RIGHT, "%.0f", id(temperature).state);
-        it.printf(xRes - 210, y - celsiusSuperscript, id(font_large), TextAlign::CENTER_LEFT, "°C");
-        if (id(temp_rising).state) {
-          it.printf(xRes - 210, y + 3, id(font_icons_tiny), TextAlign::TOP_LEFT, ICON_up);
-        }
-        else if (id(temp_falling).state) {
-          it.printf(xRes - 210, y + 3, id(font_icons_tiny), TextAlign::TOP_LEFT, ICON_down);
-        }
+      if (!isnan(id(temp_outside).state)) {
+        it.printf(xRes - 210, y, id(font_xlarge_bold), TextAlign::CENTER_RIGHT, "%.1f", id(temp_outside).state);
+        it.printf(xRes - 210, y - tempSuperscript, id(font_large), TextAlign::CENTER_LEFT, "°F");
       }
       // current condition icon
-      auto conditionIcon = conditionToIcon(id(condition).state, dayTime);
+      auto conditionIcon = conditionToIcon(id(cur_weather).state, dayTime);
       it.printf(xRes - pad, y, id(font_icons), TextAlign::CENTER_RIGHT, conditionIcon.c_str());
 
       // === LEFT - room info ===
       
-      // Living room / Nappali
+      // Living room
       y = 290;
-      it.printf(pad, y, id(font_icons_small), TextAlign::BASELINE_LEFT, ICON_sofa); 
-      if (!isnan(id(temp_nappali).state)) {
-        it.printf(temperatureCol, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.1f", id(temp_nappali).state);
-        it.printf(temperatureCol, y - celsiusSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°C");
+      if (id(fireplace_on).state) {
+        it.printf(pad, y, id(font_icons_small), TextAlign::BASELINE_LEFT, ICON_fireplace_on); 
+       } else {
+        it.printf(pad, y, id(font_icons_small), TextAlign::BASELINE_LEFT, ICON_fireplace_off);
+       }
+      if (!isnan(id(temp_livroom).state)) {
+        it.printf(temperatureCol, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.1f", id(temp_livroom).state);
+        it.printf(temperatureCol, y - tempSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°F");
       }
-      if (!isnan(id(humidity_nappali).state)) {
-        it.printf(humidityCol, y, id(font_medium), TextAlign::BASELINE_RIGHT, "%.0f", id(humidity_nappali).state);
-        it.printf(humidityCol, y, id(font_small), TextAlign::BASELINE_LEFT, "%%");
-      }
-      // Bedroom / Háló
+      // Bedroom
       y += rowHeight; // 350
       it.printf(pad, y, id(font_icons_small), TextAlign::BASELINE_LEFT, ICON_bed); 
-      if (!isnan(id(temp_halo).state)) {
-        it.printf(temperatureCol, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.1f", id(temp_halo).state);
-        it.printf(temperatureCol, y - celsiusSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°C");
+      if (!isnan(id(temp_bedroom).state)) {
+        it.printf(temperatureCol, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.1f", id(temp_bedroom).state);
+        it.printf(temperatureCol, y - tempSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°F");
       }
-      if (!isnan(id(humidity_halo).state)) {
-        it.printf(humidityCol, y, id(font_medium), TextAlign::BASELINE_RIGHT, "%.0f", id(humidity_halo).state);
+      if (!isnan(id(humid_bedroom).state)) {
+        it.printf(humidityCol, y, id(font_medium), TextAlign::BASELINE_RIGHT, "%.0f", id(humid_bedroom).state);
         it.printf(humidityCol, y, id(font_small), TextAlign::BASELINE_LEFT, "%%");
       }
-      // Kid 1 / Máté
+      // Small Crawl Space
       y += rowHeight; // 425
-      it.printf(pad, y, id(font_icons_small), TextAlign::BASELINE_LEFT, ICON_human_male); 
-      if (!isnan(id(temp_mate).state)) {
-        it.printf(temperatureCol, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.1f", id(temp_mate).state);
-        it.printf(temperatureCol, y - celsiusSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°C");
+      it.printf(pad, y, id(font_medium), TextAlign::BASELINE_LEFT, "SCS"); 
+      if (!isnan(id(temp_scs).state)) {
+        it.printf(temperatureCol, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.1f", id(temp_scs).state);
+        it.printf(temperatureCol, y - tempSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°F");
       }
-      if (!isnan(id(humidity_mate).state)) {
-        it.printf(humidityCol, y, id(font_medium), TextAlign::BASELINE_RIGHT, "%.0f", id(humidity_mate).state);
+      if (!isnan(id(humid_scs).state)) {
+        it.printf(humidityCol, y, id(font_medium), TextAlign::BASELINE_RIGHT, "%.0f", id(humid_scs).state);
         it.printf(humidityCol, y, id(font_small), TextAlign::BASELINE_LEFT, "%%");
       }
-      // Kid 2 / Luca
+      // Large Crawl Space
       y += rowHeight; // 500
-      it.printf(pad, y, id(font_icons_small), TextAlign::BASELINE_LEFT, ICON_human_female); 
-      if (!isnan(id(temp_luca).state)) {
-        it.printf(temperatureCol, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.1f", id(temp_luca).state);
-        it.printf(temperatureCol, y - celsiusSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°C");
+      it.printf(pad, y, id(font_medium), TextAlign::BASELINE_LEFT, "LCS"); 
+      if (!isnan(id(temp_lcs).state)) {
+        it.printf(temperatureCol, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.1f", id(temp_lcs).state);
+        it.printf(temperatureCol, y - tempSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°F");
       }
-      if (!isnan(id(humidity_luca).state)) {
-        it.printf(humidityCol, y, id(font_medium), TextAlign::BASELINE_RIGHT, "%.0f", id(humidity_luca).state);
+      if (!isnan(id(humid_lcs).state)) {
+        it.printf(humidityCol, y, id(font_medium), TextAlign::BASELINE_RIGHT, "%.0f", id(humid_lcs).state);
         it.printf(humidityCol, y, id(font_small), TextAlign::BASELINE_LEFT, "%%");
       }
 
-      // === MIDDLE - Locations ===
-
+      // === MIDDLE - Weather Station ===
       it.line(humidityCol + 40, 220, humidityCol + 40, yRes);
-
       auto centerCol = (humidityCol + 40 + xCenter - 10) / 2;
-      y = 290;
-      it.printf(centerCol, y + rowHeight/4, id(font_icons_small), TextAlign::BASELINE_CENTER, ICON_man);
-      y += rowHeight; // 350
-      auto gaborLocationText = locationToHungarian(id(gabor_location).state);
-      it.printf(centerCol, y - rowHeight/4, id(font_medium), TextAlign::BASELINE_CENTER, "%s", gaborLocationText.c_str());
-      y += rowHeight; // 425
-      it.printf(centerCol, y + rowHeight/4, id(font_icons_small), TextAlign::BASELINE_CENTER, ICON_woman);
-      y += rowHeight; // 500
-      auto verusLocationText = locationToHungarian(id(verus_location).state);
-      it.printf(centerCol, y - rowHeight/4, id(font_medium), TextAlign::BASELINE_CENTER, "%s", verusLocationText.c_str());
+      y = 270;
+      it.printf(centerCol, y, id(font_icons_small), TextAlign::BASELINE_CENTER, ICON_wind_avg); 
+      if (!isnan(id(wind_avg).state)) {
+        it.printf(centerCol-2, y+35, id(font_medium), TextAlign::BASELINE_RIGHT, "%.1f", id(wind_avg).state);
+        it.printf(centerCol+2, y+35, id(font_small), TextAlign::BASELINE_LEFT, "mph");
+      }
+      
+      y += 100;
+      it.printf(centerCol, y, id(font_icons_small), TextAlign::BASELINE_CENTER, ICON_wind_max); 
+      if (!isnan(id(wind_max).state)) {
+        it.printf(centerCol-2, y+35, id(font_medium), TextAlign::BASELINE_RIGHT, "%.1f", id(wind_max).state);
+        it.printf(centerCol+2, y+35, id(font_small), TextAlign::BASELINE_LEFT, "mph");
+      }
+      
+      y += 100;
+      auto lightningVal = id(lightning).state;
+      if (isnan(lightningVal)) {
+        lightningVal = 0.0;
+      }
+      auto uvVal = id(uv).state;
+      if (isnan(uvVal)) {
+        uvVal = 0.0;
+      }
+      if (lightningVal > 0.01) {
+        it.printf(centerCol, y, id(font_icons_small), TextAlign::BASELINE_CENTER, ICON_lightning); 
+        it.printf(centerCol-12, y+35, id(font_medium), TextAlign::BASELINE_RIGHT, "%.0f", lightningVal);
+        it.printf(centerCol-8, y+35, id(font_small), TextAlign::BASELINE_LEFT, "strikes");
+      } else {
+        it.printf(centerCol, y, id(font_icons_small), TextAlign::BASELINE_CENTER, ICON_uv); 
+        it.printf(centerCol-2, y+35, id(font_medium), TextAlign::BASELINE_RIGHT, "%.1f", uvVal);
+        it.printf(centerCol+2, y+35, id(font_small), TextAlign::BASELINE_LEFT, "uv");
+      }
 
       it.line(xCenter - 10, 220, xCenter - 10, yRes);
 
@@ -475,83 +557,98 @@ display:
 
       // Day of week
       y = 240;
-      it.printf(xCenter + weatherCol, y, id(font_medium), TextAlign::BASELINE_CENTER, "%s", id(day1_dow).state.c_str());
-      it.printf(xCenter + weatherCol*2, y, id(font_medium), TextAlign::BASELINE_CENTER, "%s", id(day2_dow).state.c_str());
-      it.printf(xCenter + weatherCol*3, y, id(font_medium), TextAlign::BASELINE_CENTER, "%s", id(day3_dow).state.c_str());
+      auto day0dow = dowToShortName(time.day_of_week);
+      auto day1dow = dowToShortName(time.day_of_week + 1);
+      auto day2dow = dowToShortName(time.day_of_week + 2);
+      it.printf(xCenter + weatherCol, y, id(font_medium), TextAlign::BASELINE_CENTER, day0dow.c_str());
+      it.printf(xCenter + weatherCol*2, y, id(font_medium), TextAlign::BASELINE_CENTER, day1dow.c_str());
+      it.printf(xCenter + weatherCol*3, y, id(font_medium), TextAlign::BASELINE_CENTER, day2dow.c_str());
 
-      // Condition
+      // Forecast
       y += 65; // 295
-      auto day1Icon = conditionToIcon(id(day1_condition).state, dayTime);
-      auto day2Icon = conditionToIcon(id(day2_condition).state, dayTime);
-      auto day3Icon = conditionToIcon(id(day3_condition).state, dayTime);
-      it.printf(xCenter + weatherCol, y, id(font_icons_small), TextAlign::BASELINE_CENTER, day1Icon.c_str());
-      it.printf(xCenter + weatherCol*2, y, id(font_icons_small), TextAlign::BASELINE_CENTER, day2Icon.c_str());
-      it.printf(xCenter + weatherCol*3, y, id(font_icons_small), TextAlign::BASELINE_CENTER, day3Icon.c_str());
+      auto day0Icon = conditionToIcon(id(fc_0_weather).state, true);
+      auto day1Icon = conditionToIcon(id(fc_1_weather).state, true);
+      auto day2Icon = conditionToIcon(id(fc_2_weather).state, true);
+      it.printf(xCenter + weatherCol, y, id(font_icons_small), TextAlign::BASELINE_CENTER, day0Icon.c_str());
+      it.printf(xCenter + weatherCol*2, y, id(font_icons_small), TextAlign::BASELINE_CENTER, day1Icon.c_str());
+      it.printf(xCenter + weatherCol*3, y, id(font_icons_small), TextAlign::BASELINE_CENTER, day2Icon.c_str());
 
       // High/low temperature
       y += 60; // 350
       it.printf(xCenter, y, id(font_icons_small), TextAlign::BASELINE_LEFT, ICON_temp_high);
-      if (!isnan(id(day1_max).state)) {
-        it.printf(xCenter + weatherCol + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(day1_max).state);
-        it.printf(xCenter + weatherCol + weatherTempCorr, y - celsiusSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°C");
+      if (!isnan(id(fc_0_high).state)) {
+        it.printf(xCenter + weatherCol + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(fc_0_high).state);
+        it.printf(xCenter + weatherCol + weatherTempCorr, y - tempSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°F");
       }
-      if (!isnan(id(day2_max).state)) {
-        it.printf(xCenter + weatherCol*2 + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(day2_max).state);
-        it.printf(xCenter + weatherCol*2 + weatherTempCorr, y - celsiusSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°C");
+      if (!isnan(id(fc_1_high).state)) {
+        it.printf(xCenter + weatherCol*2 + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(fc_1_high).state);
+        it.printf(xCenter + weatherCol*2 + weatherTempCorr, y - tempSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°F");
       }
-      if (!isnan(id(day3_max).state)) {
-        it.printf(xCenter + weatherCol*3 + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(day3_max).state);
-        it.printf(xCenter + weatherCol*3 + weatherTempCorr, y - celsiusSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°C");
+      if (!isnan(id(fc_2_high).state)) {
+        it.printf(xCenter + weatherCol*3 + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(fc_2_high).state);
+        it.printf(xCenter + weatherCol*3 + weatherTempCorr, y - tempSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°F");
       }
       y += rowHeight; // 425
       it.printf(xCenter, y, id(font_icons_small), TextAlign::BASELINE_LEFT, ICON_temp_low);
-      if (!isnan(id(day1_min).state)) {
-        it.printf(xCenter + weatherCol + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(day1_min).state);
-        it.printf(xCenter + weatherCol + weatherTempCorr, y - celsiusSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°C");
+      if (!isnan(id(fc_0_low).state)) {
+        it.printf(xCenter + weatherCol + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(fc_0_low).state);
+        it.printf(xCenter + weatherCol + weatherTempCorr, y - tempSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°F");
       }
-      if (!isnan(id(day2_min).state)) {
-        it.printf(xCenter + weatherCol*2 + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(day2_min).state);
-        it.printf(xCenter + weatherCol*2 + weatherTempCorr, y - celsiusSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°C");
+      if (!isnan(id(fc_1_low).state)) {
+        it.printf(xCenter + weatherCol*2 + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(fc_1_low).state);
+        it.printf(xCenter + weatherCol*2 + weatherTempCorr, y - tempSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°F");
       }
-      if (!isnan(id(day3_min).state)) {
-        it.printf(xCenter + weatherCol*3 + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(day3_min).state);
-        it.printf(xCenter + weatherCol*3 + weatherTempCorr, y - celsiusSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°C");
+      if (!isnan(id(fc_2_low).state)) {
+        it.printf(xCenter + weatherCol*3 + weatherTempCorr, y, id(font_large), TextAlign::BASELINE_RIGHT, "%.0f", id(fc_2_low).state);
+        it.printf(xCenter + weatherCol*3 + weatherTempCorr, y - tempSuperscript, id(font_medium), TextAlign::BASELINE_LEFT, "°F");
       }
 
       // Precipitation
+      // Hourly Rain
       y += rowHeight; // 425
       it.printf(xCenter, y, id(font_icons_small), TextAlign::BASELINE_LEFT, ICON_umbrella);
-      // 20mm precipitation is using the max bar height, which is 25px
-      if (!isnan(id(day1_prec).state)) {
-        auto prec1size = max(min(id(day1_prec).state * 25.0 / 20.0, 25.0), 1.0);
-        it.filled_rectangle(xCenter + weatherCol - 45, y - prec1size, weatherCol - pad*2, prec1size);
-        if (id(day1_prec).state > 1) {
-          it.printf(xCenter + weatherCol + 3, y-prec1size-pad/2, id(font_medium), TextAlign::BASELINE_RIGHT, "%.0f", id(day1_prec).state);
-          it.printf(xCenter + weatherCol + 3, y-prec1size-pad/2, id(font_small), TextAlign::BASELINE_LEFT, "mm");
-        } else if (id(day1_prec).state > 0) {
-          it.printf(xCenter + weatherCol + 3, y-prec1size-pad/2, id(font_medium), TextAlign::BASELINE_CENTER, ". . .");
-        }
+      auto prec1val = id(rain_hour).state;
+      if (isnan(prec1val)) {
+        prec1val = 0.0;
       }
-      if (!isnan(id(day2_prec).state)) {
-        auto prec2size = max(min(id(day2_prec).state * 25.0 / 20.0, 25.0), 1.0);
-        it.filled_rectangle(xCenter + weatherCol*2 - 45, y - prec2size, weatherCol - pad*2, prec2size);
-        if (id(day2_prec).state > 1) {
-          it.printf(xCenter + weatherCol*2 + 3, y-prec2size-pad/2, id(font_medium), TextAlign::BASELINE_RIGHT, "%.0f", id(day2_prec).state);
-          it.printf(xCenter + weatherCol*2 + 3, y-prec2size-pad/2, id(font_small), TextAlign::BASELINE_LEFT, "mm");
-        } else if (id(day2_prec).state > 0) {
-          it.printf(xCenter + weatherCol*2 + 3, y-prec2size-pad/2, id(font_medium), TextAlign::BASELINE_CENTER, ". . .");
-        }
+      // 0.25in precipitation is using the max bar height, which is 25px
+      auto prec1size = max(min(prec1val * 25.0 / 0.25, 25.0), 1.0);
+      it.filled_rectangle(xCenter + weatherCol - 45, y - prec1size, weatherCol - pad*2, prec1size);
+      if (prec1val > 0.01) {
+        it.printf(xCenter + weatherCol + 25, y-prec1size-pad/2, id(font_medium), TextAlign::BASELINE_RIGHT, "%.1f", prec1val);
+        it.printf(xCenter + weatherCol + 25, y-prec1size-pad/2, id(font_small), TextAlign::BASELINE_LEFT, "in");
+      } else {
+        it.printf(xCenter + weatherCol + 3, y-prec1size-pad/2, id(font_medium), TextAlign::BASELINE_CENTER, ". . .");
       }
-      if (!isnan(id(day3_prec).state)) {
-        auto prec3size = max(min(id(day3_prec).state * 25.0 / 20.0, 25.0), 1.0);
-        it.filled_rectangle(xCenter + weatherCol*3 - 45, y - prec3size, weatherCol - pad*2, prec3size);
-        if (id(day3_prec).state > 1) {
-          it.printf(xCenter + weatherCol*3 + 3, y-prec3size-pad/2, id(font_medium), TextAlign::BASELINE_RIGHT, "%.0f", id(day3_prec).state);
-          it.printf(xCenter + weatherCol*3 + 3, y-prec3size-pad/2, id(font_small), TextAlign::BASELINE_LEFT, "mm");
-        } else if (id(day3_prec).state > 0) {
-          it.printf(xCenter + weatherCol*3 + 3, y-prec3size-pad/2, id(font_medium), TextAlign::BASELINE_CENTER, ". . .");
-        }
+
+      // Daily Rain
+      auto prec2val = id(rain_day).state;
+      if (isnan(prec2val)) {
+        prec2val = 0.0;
       }
+      auto prec2size = max(min(prec2val * 25.0 / 0.5, 25.0), 1.0);
+      it.filled_rectangle(xCenter + weatherCol*2 - 45, y - prec2size, weatherCol - pad*2, prec2size);
+      if (prec2val > 0.01) {
+        it.printf(xCenter + weatherCol*2 + 25, y-prec2size-pad/2, id(font_medium), TextAlign::BASELINE_RIGHT, "%.1f", prec2val);
+        it.printf(xCenter + weatherCol*2 + 25, y-prec2size-pad/2, id(font_small), TextAlign::BASELINE_LEFT, "in");
+      } else {
+        it.printf(xCenter + weatherCol*2 + 3, y-prec2size-pad/2, id(font_medium), TextAlign::BASELINE_CENTER, ". . .");
+      }
+
+      // Weekly Rain
+      auto prec3val = id(rain_week).state;
+      if (isnan(prec3val)) {
+        prec3val = 0.0;
+      }
+      auto prec3size = max(min(prec3val * 25.0 / 1, 25.0), 1.0);
+      it.filled_rectangle(xCenter + weatherCol*3 - 45, y - prec3size, weatherCol - pad*2, prec3size);
+      if (prec3val > 0.01) {
+        it.printf(xCenter + weatherCol*3 + 25, y-prec3size-pad/2, id(font_medium), TextAlign::BASELINE_RIGHT, "%.1f", prec3val);
+        it.printf(xCenter + weatherCol*3 + 25, y-prec3size-pad/2, id(font_small), TextAlign::BASELINE_LEFT, "in");
+      } else {
+        it.printf(xCenter + weatherCol*3 + 3, y-prec3size-pad/2, id(font_medium), TextAlign::BASELINE_CENTER, ". . .");
+      }
+
 
       // === Footer/debug ===
 

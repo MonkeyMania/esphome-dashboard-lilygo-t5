@@ -1,6 +1,6 @@
 # ESPHome based dashboard using Lilygo T5 4,7" e-ink display + ESP32
 
-![Sample](/sample.png)
+![2022-03-04 - Lily Dashboard](https://user-images.githubusercontent.com/46270068/156859597-3dcb1de6-944f-445a-9a6b-4e5d2b67b957.JPG)
 
 This is my hobby project to create an information-dense kitchen countertop dashboard for my Home Assistant based smart home.
 

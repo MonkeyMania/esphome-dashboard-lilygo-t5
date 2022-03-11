@@ -52,6 +52,8 @@ Things I still want to clean up:
 - ~~Squeeze in rain probability to forecast while keeping hourly/day/week rain totals?~~
   - Would require more custom templates like: 
     "{{ state_attr('weather.home', 'forecast')[0/1/2].precipitation_probability }}"
+- get case printed
+- Use buttons to switch pages. Complete sensor page, calendar page, weather station page.
 
 ## Other resources
 

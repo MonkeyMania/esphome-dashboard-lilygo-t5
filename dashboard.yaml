@@ -21,7 +21,7 @@ api:
   password: !secret api_code
 
 ota:
-  password: ""
+  password: "ba83639f51f33b47f6840387372997b0"
 
 wifi:
   ssid: !secret wifi_ssid
@@ -30,25 +30,21 @@ wifi:
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "Lilygo-Display Fallback Hotspot"
-    password: ""
+    password: "DYOQ4RZiF1U0"
 
 time:
   - platform: homeassistant
     id: ntp
 
 external_components:
-  - source:
-      type: git
-      url: https://github.com/vbaksa/esphome
-      ref: dev
+  - source: github://ashald/esphome@lilygo-t5-47
     components:
-      - lilygo_t5_47_battery 
-      - lilygo_t5_47_display
+      - lilygo_t5_47
 
-script:
-  - id: all_data_received
-    then:
-      - component.update: t5_display
+#script:
+#  - id: all_data_received
+#    then:
+#      - component.update: t5_display
 
 sensor:
   # weather
@@ -90,6 +86,21 @@ sensor:
   - platform: homeassistant
     entity_id: sensor.home_realfeel_temperature_max_2d
     id: fc_2_high
+    internal: true
+
+  - platform: homeassistant
+    entity_id: sensor.forecast_0_precip
+    id: fc_0_rain
+    internal: true
+
+  - platform: homeassistant
+    entity_id: sensor.forecast_1_precip
+    id: fc_1_rain
+    internal: true
+
+  - platform: homeassistant
+    entity_id: sensor.forecast_2_precip
+    id: fc_2_rain
     internal: true
 
   - platform: homeassistant
@@ -169,14 +180,14 @@ sensor:
     internal: true
 
 binary_sensor:
-  - platform: gpio
-    pin: 
-      number: GPIO39
-      inverted: true
-    name: "lilygo-t5 Button 1"
-    on_press:
-      then:
-        - component.update: t5_display
+#  - platform: gpio
+#    pin: 
+#      number: GPIO39
+#      inverted: true
+#    name: "lilygo-t5 Button 1"
+#    on_press:
+#      then:
+#        - component.update: t5_display
 
   - platform: homeassistant
     entity_id: switch.fireplace
@@ -252,14 +263,24 @@ text_sensor:
     id: sunrise_sunset
     internal: true
     
+  - platform: homeassistant
+    entity_id: sensor.sunrise_time
+    id: sunrise_time
+    internal: true
+    
+  - platform: homeassistant
+    entity_id: sensor.sunset_time
+    id: sunset_time
+    internal: true
+    
   # weather
   - platform: homeassistant
     entity_id: weather.home
     id: cur_weather
     internal: true
-    on_value: # Actions to perform once data for the last sensor has been received
-      then:
-        - script.execute: all_data_received
+#    on_value: # Actions to perform once data for the last sensor has been received
+#      then:
+#        - script.execute: all_data_received
 
 font:
   - file: "fonts/OpenSans-Medium.ttf"
@@ -354,6 +375,8 @@ font:
       - "\U000F1435" # no motion
       - "\U000F0D91" # motion detected
       - "\U000F17FF" # UV Sun
+      - "\U000F059C" # Sunrise
+      - "\U000F059B" # Sunset
       # moon phases
       - "\U000F0F61" # moon-first-quarter
       - "\U000F0F62" # moon-full
@@ -372,10 +395,14 @@ font:
       - "\U000F0046" # arrow-down-thick
       
 display:
-  - platform: lilygo_t5_47_display
+    platform: lilygo_t5_47
+    full_update_every: 30 # optional (default:  1): 0 - never, 1 (default) - every, 2+ - throttled
+    cycles_render: 20    # optional (default: 20): higher number -> less ghosting, crisper image, more time
+    cycles_invert: 20    # optional (default: 20): higher number -> more timef or full update, but mor burn-in protection
     id: t5_display
     rotation: 180
     update_interval: 10s
+
     lambda: |-
       #define ICON_temp_high        "\U000F10C2"
       #define ICON_temp_low         "\U000F10C3"
@@ -395,6 +422,8 @@ display:
       #define ICON_no_motion        "\U000F1435"
       #define ICON_motion_detected  "\U000F0D91"
       #define ICON_uv               "\U000F17FF"
+      #define ICON_sunrise          "\U000F059C"
+      #define ICON_sunset           "\U000F059B"
       #define xRes 960
       #define yRes 540
       #define xCenter (xRes/2 + 40)
@@ -405,6 +434,8 @@ display:
       #define humidityCol 300
       #define weatherCol 120
       #define weatherTempCorr 15
+      #define weatherRainCorr 30
+      #define weatherIconCorr 5
       int y = 0;
       
       // date time Stuff
@@ -412,9 +443,13 @@ display:
       auto dayTime = id(sun).state == "above_horizon";
       it.strftime(180, 0, id(font_xlarge_bold), TextAlign::TOP_RIGHT, "%l:%M", time);
       it.strftime(180, pad, id(font_medium_bold), TextAlign::TOP_LEFT, "%p", time);
-      // date + nameday
-      //std::string dateFormat = generateDateFormat(time, id(ntp).now);
-      it.printf(xRes - pad - 45, pad, id(font_medium_bold), TextAlign::TOP_RIGHT, "%.40s", id(sunrise_sunset).state.c_str());
+
+      // Sunrise Sunset
+      it.printf(350, pad, id(font_icons_small), TextAlign::TOP_RIGHT, ICON_sunrise);
+      it.printf(350, pad, id(font_medium_bold), TextAlign::TOP_LEFT, "%.8s", id(sunrise_time).state.c_str());
+      it.printf(600, pad, id(font_icons_small), TextAlign::TOP_RIGHT, ICON_sunset);
+      it.printf(600, pad, id(font_medium_bold), TextAlign::TOP_LEFT, "%.8s", id(sunset_time).state.c_str());
+      
       // moon phase
       auto moonIcon = moonToIcon(id(moon).state);
       it.printf(xRes - pad/2, pad, id(font_icons_small), TextAlign::TOP_RIGHT, moonIcon.c_str());
@@ -564,14 +599,22 @@ display:
       it.printf(xCenter + weatherCol*2, y, id(font_medium), TextAlign::BASELINE_CENTER, day1dow.c_str());
       it.printf(xCenter + weatherCol*3, y, id(font_medium), TextAlign::BASELINE_CENTER, day2dow.c_str());
 
-      // Forecast
+      // Forecast Icons and precipation chance
       y += 65; // 295
       auto day0Icon = conditionToIcon(id(fc_0_weather).state, true);
       auto day1Icon = conditionToIcon(id(fc_1_weather).state, true);
       auto day2Icon = conditionToIcon(id(fc_2_weather).state, true);
-      it.printf(xCenter + weatherCol, y, id(font_icons_small), TextAlign::BASELINE_CENTER, day0Icon.c_str());
-      it.printf(xCenter + weatherCol*2, y, id(font_icons_small), TextAlign::BASELINE_CENTER, day1Icon.c_str());
-      it.printf(xCenter + weatherCol*3, y, id(font_icons_small), TextAlign::BASELINE_CENTER, day2Icon.c_str());
+      it.printf(xCenter + weatherCol - weatherIconCorr, y, id(font_icons_small), TextAlign::BASELINE_RIGHT, day0Icon.c_str());
+      it.printf(xCenter + weatherCol + weatherRainCorr, y, id(font_small), TextAlign::BASELINE_RIGHT, "%.0f", id(fc_0_rain).state);
+      it.printf(xCenter + weatherCol + weatherRainCorr, y, id(font_small), TextAlign::BASELINE_LEFT, "%%");
+
+      it.printf(xCenter + weatherCol*2 - weatherIconCorr, y, id(font_icons_small), TextAlign::BASELINE_RIGHT, day1Icon.c_str());
+      it.printf(xCenter + weatherCol*2 + weatherRainCorr, y, id(font_small), TextAlign::BASELINE_RIGHT, "%.0f", id(fc_1_rain).state);
+      it.printf(xCenter + weatherCol*2 + weatherRainCorr, y, id(font_small), TextAlign::BASELINE_LEFT, "%%");
+
+      it.printf(xCenter + weatherCol*3 - weatherIconCorr, y, id(font_icons_small), TextAlign::BASELINE_RIGHT, day2Icon.c_str());
+      it.printf(xCenter + weatherCol*3 + weatherRainCorr, y, id(font_small), TextAlign::BASELINE_RIGHT, "%.0f", id(fc_2_rain).state);
+      it.printf(xCenter + weatherCol*3 + weatherRainCorr, y, id(font_small), TextAlign::BASELINE_LEFT, "%%");
 
       // High/low temperature
       y += 60; // 350

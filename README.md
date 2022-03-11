@@ -1,6 +1,6 @@
 # ESPHome based dashboard using Lilygo T5 4,7" e-ink display + ESP32
 
-![2022-03-04 - Lily Dashboard](https://user-images.githubusercontent.com/46270068/156859597-3dcb1de6-944f-445a-9a6b-4e5d2b67b957.JPG)
+![2022-03-10 - Lily Dashboard](https://github.com/MonkeyMania/esphome-dashboard-lilygo-t5/blob/main/2022-03-10%20-%20Lily%20Dashboard.JPG?raw=true)
 
 This is my hobby project to create an information-dense kitchen countertop dashboard for my Home Assistant based smart home.
 
@@ -46,10 +46,10 @@ Data sources used behind:
 Things I still want to clean up:
 
 - Status icon and text positioning (alignment and orientation is boggling my mind)
-- Possible clean up Sunrise/Sunset information by trimming to just times and show icons
+- ~~Possible clean up Sunrise/Sunset information by trimming to just times and show icons~~
   - Need value template like: 
     {{ state_attr('calendar.sunrise_and_sunset_for_bristol', 'message').split(",")[0].replace('Sunrise: ','') }}
-- Squeeze in rain probability to forecast while keeping hourly/day/week rain totals?
+- ~~Squeeze in rain probability to forecast while keeping hourly/day/week rain totals?~~
   - Would require more custom templates like: 
     "{{ state_attr('weather.home', 'forecast')[0/1/2].precipitation_probability }}"
 
@@ -62,6 +62,7 @@ Things I still want to clean up:
 - [https://www.reddit.com/r/homeassistant/comments/rm71z4/lilygo_t5_epaper_display_now_using_esphome/]
 - [https://www.reddit.com/r/homeassistant/comments/rwwy6r/i_built_a_personal_dashboard_with_a_47_epaper/]
 - [https://pictogrammers.github.io/@mdi/font/5.3.45/]
+- [https://github.com/esphome/feature-requests/issues/1109]
 
 ## License
 

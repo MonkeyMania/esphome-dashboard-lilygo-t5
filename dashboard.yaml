@@ -445,10 +445,10 @@ display:
       it.strftime(180, pad, id(font_medium_bold), TextAlign::TOP_LEFT, "%p", time);
 
       // Sunrise Sunset
-      it.printf(350, pad, id(font_icons_small), TextAlign::TOP_RIGHT, ICON_sunrise);
-      it.printf(350, pad, id(font_medium_bold), TextAlign::TOP_LEFT, "%.8s", id(sunrise_time).state.c_str());
-      it.printf(600, pad, id(font_icons_small), TextAlign::TOP_RIGHT, ICON_sunset);
-      it.printf(600, pad, id(font_medium_bold), TextAlign::TOP_LEFT, "%.8s", id(sunset_time).state.c_str());
+      it.printf(300, pad, id(font_icons_small), TextAlign::TOP_RIGHT, ICON_sunrise);
+      it.printf(300, pad, id(font_medium_bold), TextAlign::TOP_LEFT, "%.13s", id(sunrise_time).state.c_str());
+      it.printf(650, pad, id(font_icons_small), TextAlign::TOP_RIGHT, ICON_sunset);
+      it.printf(650, pad, id(font_medium_bold), TextAlign::TOP_LEFT, "%.13s", id(sunset_time).state.c_str());
       
       // moon phase
       auto moonIcon = moonToIcon(id(moon).state);

@@ -30,7 +30,8 @@ Data sources used behind:
 
 - HA date and time
 - `sun` and `moon` HA sensors
-- google calendar to get today's Sunrise and Sunset
+- ~~google calendar to get today's Sunrise and Sunset~~
+- Sun.sun sensor templates for dawn/sunrise and sunset/dusk times
 - 433 MHz temperature+humidity sensors, Accuweather Atlas weather station
 - Another ESP32 monitoring garage door positions
 - Motion messages from Home Security Camera using MQTT (Blue Iris)

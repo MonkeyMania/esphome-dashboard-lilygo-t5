@@ -32,6 +32,10 @@ Data sources used behind:
 - `sun` and `moon` HA sensors
 - ~~google calendar to get today's Sunrise and Sunset~~
 - Sun.sun sensor templates for dawn/sunrise and sunset/dusk times
+ - HA template (dusk and sunset done similarily)
+   {% set my_dawn = as_timestamp(state_attr('sun.sun', 'next_dawn')) | timestamp_custom("%-I:%Ma") %}
+   {% set my_sunrise = as_timestamp(state_attr('sun.sun', 'next_rising')) | timestamp_custom("%-I:%Ma") %}
+   {{ my_dawn }} - {{ my_sunrise }}
 - 433 MHz temperature+humidity sensors, Accuweather Atlas weather station
 - Another ESP32 monitoring garage door positions
 - Motion messages from Home Security Camera using MQTT (Blue Iris)
@@ -41,6 +45,7 @@ Data sources used behind:
   - Required creation of 3 forecast condition entities to pass to ESPHome: 
     "{{ state_attr('weather.home', 'forecast')[0/1/2].condition }}"
   - Entitities of Min/Max "Real Feel" temperatures for 0/1/2 days out made by integration
+   - HA templates "{{ state_attr('weather.home', 'forecast')[0/1/2].precipitation_probability }}"
 
 ## To Do
 
